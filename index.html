@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>你的男友更像谁｜历史人格匹配测评</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f7f0f8, #f0f5fc);
+            min-height: 100vh;
+            padding: 24px 16px;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 32px 24px;
+            box-shadow: 0 10px 40px rgba(140, 100, 170, 0.12);
+        }
+
+        .title {
+            text-align: center;
+            color: #9d65b8;
+            font-size: 26px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .desc {
+            text-align: center;
+            color: #888;
+            margin-bottom: 24px;
+            font-size: 14px;
+            line-height:1.6;
+        }
+
+        .dim-label {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 28px;
+        }
+
+        .dim-tag {
+            background: #f3e8f9;
+            color: #9d65b8;
+            padding: 5px 13px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        /* 答题区域：一页一题 */
+        .question-wrap{
+            display:none;
+        }
+        .question-wrap.active{
+            display:block;
+        }
+        .question {
+            padding: 26px 22px;
+            background: #f9f4fc;
+            border-radius: 20px;
+            transition: 0.3s;
+        }
+        .question:hover {
+            box-shadow: 0 4px 16px rgba(157,101,184,0.08);
+        }
+        .q-index{
+            font-size:13px;
+            color:#b08bc4;
+            margin-bottom:12px;
+        }
+        .q-type {
+            font-size: 13px;
+            color: #b08bc4;
+            margin-bottom: 10px;
+        }
+        .q-title {
+            font-size: 17px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 500;
+            line-height:1.6;
+        }
+        .option {
+            margin:12px 0;
+            cursor: pointer;
+            font-size: 15px;
+            color: #444;
+            padding:12px 14px;
+            border-radius:14px;
+            border:1px solid #e9dff0;
+            transition:0.25s;
+        }
+        .option:hover {
+            background:#f0e6f7;
+            border-color:#d8c4e6;
+        }
+        .option.selected{
+            background:#e9d8f4;
+            border-color:#b888d4;
+        }
+        input[type="radio"] {
+            margin-right: 10px;
+            accent-color: #9d65b8;
+        }
+        .progress-bar{
+            width:100%;
+            height:6px;
+            background:#eee;
+            border-radius:10px;
+            margin:24px 0;
+            overflow:hidden;
+        }
+        .progress-fill{
+            height:100%;
+            background:#b888d4;
+            width:0%;
+            transition:0.3s;
+        }
+        .btn-box {
+            text-align: center;
+            margin: 32px 0 20px;
+        }
+        .submit-btn {
+            background: linear-gradient(135deg, #9d65b8, #b888d4);
+            color: #fff;
+            border: none;
+            padding:14px 44px;
+            font-size:16px;
+            border-radius:32px;
+            cursor: pointer;
+            transition:0.3s;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(157,101,184,0.25);
+        }
+
+        .result-box {
+            margin-top:30px;
+            padding:28px;
+            border-radius:20px;
+            display:none;
+            background:#faf7fc;
+        }
+        .result-title {
+            font-size: 22px;
+            color:#9d65b8;
+            text-align:center;
+            margin-bottom:22px;
+            font-weight:bold;
+        }
+        .radar-wrap {
+            width:100%;
+            max-width:400px;
+            margin:0 auto 28px;
+        }
+        .score-list {
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:14px;
+            margin-bottom:26px;
+        }
+        .score-item {
+            background:#fff;
+            padding:14px;
+            border-radius:14px;
+            text-align:center;
+            box-shadow:0 2px 10px rgba(0,0,0,0.05);
+        }
+        .score-name {
+            font-size:14px;
+            color:#666;
+        }
+        .score-val {
+            font-size:18px;
+            color:#9d65b8;
+            font-weight:bold;
+            margin-top:4px;
+        }
+        .result-desc {
+            font-size:15px;
+            color:#444;
+            line-height:1.8;
+            margin-bottom:20px;
+        }
+
+        /* 人物卡片 */
+        .hero-card {
+            margin-top:30px;
+            padding:26px;
+            background:#fff;
+            border-radius:18px;
+            box-shadow:0 3px 14px rgba(0,0,0,0.06);
+        }
+        .hero-quote {
+            font-style:italic;
+            color:#a87bbf;
+            text-align:center;
+            font-size:15px;
+            margin:14px 0;
+            padding:12px;
+            background:#f7f0f9;
+            border-radius:12px;
+        }
+        .tag-group {
+            display:flex;
+            flex-wrap:wrap;
+            gap:7px;
+            justify-content:center;
+            margin:16px 0;
+        }
+        .hero-tag {
+            font-size:12px;
+            padding:4px 11px;
+            border-radius:16px;
+            background:#f0e8f7;
+            color:#9d65b8;
+        }
+        .hero-block {
+            margin:18px 0;
+        }
+        .hero-block h4 {
+            color:#9d65b8;
+            margin-bottom:8px;
+            font-size:15px;
+        }
+        .hero-block p {
+            line-height:1.8;
+            color:#444;
+            font-size:14px;
+        }
+
+        /* 海报生成模块 */
+        .poster-block{
+            margin-top:24px;
+            padding:20px;
+            background:#f3e8f9;
+            border-radius:16px;
+            text-align:center;
+        }
+        .poster-title{
+            font-size:15px;
+            color:#9d65b8;
+            font-weight:600;
+            margin-bottom:12px;
+        }
+        .poster-btn{
+            background:#b888d4;
+            color:white;
+            border:none;
+            padding:12px 24px;
+            border-radius:24px;
+            font-size:15px;
+            cursor:pointer;
+        }
+        .poster-tip{
+            font-size:13px;
+            color:#777;
+            margin-top:8px;
+        }
+        .tip {
+            text-align:center;
+            color:#999;
+            font-size:13px;
+            margin-top:24px;
+        }
+        /* 海报截图容器，用于生成图片 */
+        #posterCapture{
+            position:absolute;
+            left:-9999px;
+            top:-9999px;
+            width:720px;
+            background:#fff;
+            padding:30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">你的男友更像谁</h1>
+        <p class="desc">勇气｜谋略｜担当｜共情力｜创造力 · 历史人格精准匹配</p>
+        <div class="dim-label">
+            <span class="dim-tag">⚔️ 勇气内核</span>
+            <span class="dim-tag">🧠 处事谋略</span>
+            <span class="dim-tag">🛡️ 责任担当</span>
+            <span class="dim-tag">💗 情绪共情</span>
+            <span class="dim-tag">✨ 思维创造力</span>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <form id="testForm">
+            <!-- 题目容器，一页一题 -->
+            <div class="question-wrap" data-index="0">
+                <div class="question">
+                    <div class="q-index">第1题 / 25题</div>
+                    <div class="q-type">【勇气内核】</div>
+                    <p class="q-title">1. 当你在外受委屈、被人非议，哪怕事情不大，他的下意识反应更接近？</p>
+                    <div class="option"><input type="radio" name="d1" value="20"> A. 无条件站你这边，对外维护你的体面，不让你独自难堪</div>
+                    <div class="option"><input type="radio" name="d1" value="15"> B. 先安抚你的情绪，事后理性帮你梳理对错</div>
+                    <div class="option"><input type="radio" name="d1" value="10"> C. 劝你看淡一点，没必要较真，息事宁人最重要</div>
+                    <div class="option"><input type="radio" name="d1" value="5"> D. 反问你是不是多想、是不是自己问题，让你自我消化</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="1">
+                <div class="question">
+                    <div class="q-index">第2题 / 25题</div>
+                    <div class="q-type">【勇气内核】</div>
+                    <p class="q-title">2. 生活突发变故、计划被打乱、出现棘手麻烦时，他的状态是？</p>
+                    <div class="option"><input type="radio" name="d2" value="20"> A. 情绪稳定，优先解决问题，不慌不抱怨</div>
+                    <div class="option"><input type="radio" name="d2" value="15"> B. 心里慌乱，但会硬扛着配合处理</div>
+                    <div class="option"><input type="radio" name="d2" value="10"> C. 焦虑烦躁，拖延观望，不愿直面问题</div>
+                    <div class="option"><input type="radio" name="d2" value="5"> D. 摆烂逃避，把烂摊子留给你或时间</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="2">
+                <div class="question">
+                    <div class="q-index">第3题 / 25题</div>
+                    <div class="q-type">【勇气内核】</div>
+                    <p class="q-title">3. 需要有人出面沟通、交涉、争取权益的场合，他通常？</p>
+                    <div class="option"><input type="radio" name="d3" value="20"> A. 主动站出来，条理清晰，气场从容</div>
+                    <div class="option"><input type="radio" name="d3" value="15"> B. 可以配合出面，不会怯场退缩</div>
+                    <div class="option"><input type="radio" name="d3" value="10"> C. 习惯性推脱，能躲就躲，不爱出头</div>
+                    <div class="option"><input type="radio" name="d3" value="5"> D. 极度社恐怯懦，全程沉默装傻</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="3">
+                <div class="question">
+                    <div class="q-index">第4题 / 25题</div>
+                    <div class="q-type">【勇气内核】</div>
+                    <p class="q-title">4. 感情出现真实裂痕、累积矛盾时，他对待问题的态度？</p>
+                    <div class="option"><input type="radio" name="d4" value="20"> A. 敢于直面症结，不怕争吵，愿意复盘修复关系</div>
+                    <div class="option"><input type="radio" name="d4" value="15"> B. 愿意沟通，但需要缓冲情绪才能开口</div>
+                    <div class="option"><input type="radio" name="d4" value="10"> C. 害怕冲突，选择性闭口、回避敏感话题</div>
+                    <div class="option"><input type="radio" name="d4" value="5"> D. 用冷处理彻底逃避，假装问题不存在</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="4">
+                <div class="question">
+                    <div class="q-index">第5题 / 25题</div>
+                    <div class="q-type">【勇气内核】</div>
+                    <p class="q-title">5. 面对未知压力、阶层差距、未来不确定性，他的心态？</p>
+                    <div class="option"><input type="radio" name="d5" value="20"> A. 接纳不确定，愿意努力突破，心态坚韧</div>
+                    <div class="option"><input type="radio" name="d5" value="15"> B. 虽有焦虑，但稳步前行，不躺平</div>
+                    <div class="option"><input type="radio" name="d5" value="10"> C. 畏惧改变，偏爱安逸，抵触压力</div>
+                    <div class="option"><input type="radio" name="d5" value="5"> D. 彻底畏难摆烂，怨天尤人拒绝成长</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="5">
+                <div class="question">
+                    <div class="q-index">第6题 / 25题</div>
+                    <div class="q-type">【处事谋略】</div>
+                    <p class="q-title">6. 面对生活琐事、事务安排，他的做事逻辑更像？</p>
+                    <div class="option"><input type="radio" name="d6" value="20"> A. 预判风险、主次分明、做事有章法</div>
+                    <div class="option"><input type="radio" name="d6" value="15"> B. 大体靠谱，偶尔随性，但不会出大错</div>
+                    <div class="option"><input type="radio" name="d6" value="10"> C. 凭心情做事，缺乏规划，临时应付</div>
+                    <div class="option"><input type="radio" name="d6" value="5"> D. 冲动鲁莽，顾头不顾尾，经常善后</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="6">
+                <div class="question">
+                    <div class="q-index">第7题 / 25题</div>
+                    <div class="q-type">【处事谋略】</div>
+                    <p class="q-title">7. 在人情世故、社交边界上，他的分寸感？</p>
+                    <div class="option"><input type="radio" name="d7" value="20"> A. 知世故而不世故，懂边界、会避雷、会护你</div>
+                    <div class="option"><input type="radio" name="d7" value="15"> B. 言行得体，不惹事，社交稳重</div>
+                    <div class="option"><input type="radio" name="d7" value="10"> C. 直来直去，偶尔失言，容易制造小尴尬</div>
+                    <div class="option"><input type="radio" name="d7" value="5"> D. 嘴无遮拦、不懂避嫌，经常引发误会</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="7">
+                <div class="question">
+                    <div class="q-index">第8题 / 25题</div>
+                    <div class="q-type">【处事谋略】</div>
+                    <p class="q-title">8. 遇到两难抉择、利弊拉扯的局面，他的决策风格？</p>
+                    <div class="option"><input type="radio" name="d8" value="20"> A. 冷静权衡，抓核心需求，果断取舍</div>
+                    <div class="option"><input type="radio" name="d8" value="15"> B. 审慎思考，最终能做出合适选择</div>
+                    <div class="option"><input type="radio" name="d8" value="10"> C. 严重纠结，内耗很久难以落地</div>
+                    <div class="option"><input type="radio" name="d8" value="5"> D. 情绪化决策，凭冲动选择，事后后悔</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="8">
+                <div class="question">
+                    <div class="q-index">第9题 / 25题</div>
+                    <div class="q-type">【处事谋略】</div>
+                    <p class="q-title">9. 发生争吵矛盾时，他的思维优先级是？</p>
+                    <div class="option"><input type="radio" name="d9" value="20"> A. 优先解决根源，不纠缠情绪输赢</div>
+                    <div class="option"><input type="radio" name="d9" value="15"> B. 情绪平复后，愿意理性复盘沟通</div>
+                    <div class="option"><input type="radio" name="d9" value="10"> C. 纠结对错输赢，忽略你的感受</div>
+                    <div class="option"><input type="radio" name="d9" value="5"> D. 逻辑崩盘，只会抬杠赌气</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="9">
+                <div class="question">
+                    <div class="q-index">第10题 / 25题</div>
+                    <div class="q-type">【处事谋略】</div>
+                    <p class="q-title">10. 对于感情和生活，他是否具备长线思维？</p>
+                    <div class="option"><input type="radio" name="d10" value="20"> A. 有清晰规划，懂得积累、节制、布局未来</div>
+                    <div class="option"><input type="radio" name="d10" value="15"> B. 有简单方向，稳步向前，不浑浑噩噩</div>
+                    <div class="option"><input type="radio" name="d10" value="10"> C. 活在当下，走一步看一步，缺乏远见</div>
+                    <div class="option"><input type="radio" name="d10" value="5"> D. 短视享乐，透支当下，从不考虑未来</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="10">
+                <div class="question">
+                    <div class="q-index">第11题 / 25题</div>
+                    <div class="q-type">【责任担当】</div>
+                    <p class="q-title">11. 明确是他的疏忽、失误造成问题时，他的第一反应？</p>
+                    <div class="option"><input type="radio" name="d11" value="20"> A. 主动认领、主动补救，不辩解不甩锅</div>
+                    <div class="option"><input type="radio" name="d11" value="15"> B. 承认问题，愿意后续改正</div>
+                    <div class="option"><input type="radio" name="d11" value="10"> C. 勉强认错，但心里抵触、觉得小题大做</div>
+                    <div class="option"><input type="radio" name="d11" value="5"> D. 找借口、推外因，死不承认自身问题</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="11">
+                <div class="question">
+                    <div class="q-index">第12题 / 25题</div>
+                    <div class="q-type">【责任担当】</div>
+                    <p class="q-title">12. 生活压力、工作疲惫、现实重担袭来时，他的状态？</p>
+                    <div class="option"><input type="radio" name="d12" value="20"> A. 沉默扛压，自我消化负面，不迁怒伴侣</div>
+                    <div class="option"><input type="radio" name="d12" value="15"> B. 正常承担压力，偶尔低落但不摆烂</div>
+                    <div class="option"><input type="radio" name="d12" value="10"> C. 频繁抱怨宣泄，把负能量传递给你</div>
+                    <div class="option"><input type="radio" name="d12" value="5"> D. 逃避责任、躺平摆烂，坐等别人兜底</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="12">
+                <div class="question">
+                    <div class="q-index">第13题 / 25题</div>
+                    <div class="q-type">【责任担当】</div>
+                    <p class="q-title">13. 他对你许下的承诺、随口的约定，最终大概率会？</p>
+                    <div class="option"><input type="radio" name="d13" value="20"> A. 落地兑现，极少画空饼</div>
+                    <div class="option"><input type="radio" name="d13" value="15"> B. 大部分会做到，少数会延迟</div>
+                    <div class="option"><input type="radio" name="d13" value="10"> C. 选择性遗忘，需要你反复提醒</div>
+                    <div class="option"><input type="radio" name="d13" value="5"> D. 口头敷衍居多，几乎从不落地</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="13">
+                <div class="question">
+                    <div class="q-index">第14题 / 25题</div>
+                    <div class="q-type">【责任担当】</div>
+                    <p class="q-title">14. 感情遇到现实阻碍（距离、家庭、现实差距），他会？</p>
+                    <div class="option"><input type="radio" name="d14" value="20"> A. 主动攻坚，寻找解法，推进关系向前</div>
+                    <div class="option"><input type="radio" name="d14" value="15"> B. 愿意共同面对，不轻易放弃</div>
+                    <div class="option"><input type="radio" name="d14" value="10"> C. 被动停滞，观望消耗，不主动突破</div>
+                    <div class="option"><input type="radio" name="d14" value="5"> D. 遇阻即退，直接甩手放弃</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="14">
+                <div class="question">
+                    <div class="q-index">第15题 / 25题</div>
+                    <div class="q-type">【责任担当】</div>
+                    <p class="q-title">15. 日常琐碎、相处细节、分内之事，他的状态？</p>
+                    <div class="option"><input type="radio" name="d15" value="20"> A. 自觉分担，靠谱省心，不用事事催促</div>
+                    <div class="option"><input type="radio" name="d15" value="15"> B. 交代之后可以认真完成</div>
+                    <div class="option"><input type="radio" name="d15" value="10"> C. 拖延懒散，需要反复督促</div>
+                    <div class="option"><input type="radio" name="d15" value="5"> D. 习惯性甩手掌柜，全部丢给你</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="15">
+                <div class="question">
+                    <div class="q-index">第16题 / 25题</div>
+                    <div class="q-type">【情绪共情】</div>
+                    <p class="q-title">16. 你沉默低落、不开心但不愿细说的时候，他通常？</p>
+                    <div class="option"><input type="radio" name="d16" value="20"> A. 敏锐察觉情绪，温柔陪伴，给你安全感</div>
+                    <div class="option"><input type="radio" name="d16" value="15"> B. 能感知异常，主动询问关心</div>
+                    <div class="option"><input type="radio" name="d16" value="10"> C. 毫无察觉，照常玩乐忙碌</div>
+                    <div class="option"><input type="radio" name="d16" value="5"> D. 察觉后不耐烦，觉得你矫情沉闷</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="16">
+                <div class="question">
+                    <div class="q-index">第17题 / 25题</div>
+                    <div class="q-type">【情绪共情】</div>
+                    <p class="q-title">17. 意见不合产生矛盾时，他能否接住你的委屈？</p>
+                    <div class="option"><input type="radio" name="d17" value="20"> A. 先接纳情绪，再谈论道理，懂得换位思考</div>
+                    <div class="option"><input type="radio" name="d17" value="15"> B. 冷静后能理解你的立场与委屈</div>
+                    <div class="option"><input type="radio" name="d17" value="10"> C. 只讲对错，无视你的情绪感受</div>
+                    <div class="option"><input type="radio" name="d17" value="5"> D. 打压式沟通，否定你的所有情绪</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="17">
+                <div class="question">
+                    <div class="q-index">第18题 / 25题</div>
+                    <div class="q-type">【情绪共情】</div>
+                    <p class="q-title">18. 你分享细碎日常、无聊小事、碎碎念时，他的态度？</p>
+                    <div class="option"><input type="radio" name="d18" value="20"> A. 耐心承接、积极回应，珍惜你的分享欲</div>
+                    <div class="option"><input type="radio" name="d18" value="15"> B. 认真回复，不敷衍冷淡</div>
+                    <div class="option"><input type="radio" name="d18" value="10"> C. 礼貌应付，回复机械化</div>
+                    <div class="option"><input type="radio" name="d18" value="5"> D. 嫌弃琐碎，态度敷衍不耐烦</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="18">
+                <div class="question">
+                    <div class="q-index">第19题 / 25题</div>
+                    <div class="q-type">【情绪共情】</div>
+                    <p class="q-title">19. 面对你的小众喜好、性格软肋、个人习惯，他会？</p>
+                    <div class="option"><input type="radio" name="d19" value="20"> A. 尊重接纳、温柔守护，不随意评判</div>
+                    <div class="option"><input type="radio" name="d19" value="15"> B. 基本尊重，不贬低、不否定</div>
+                    <div class="option"><input type="radio" name="d19" value="10"> C. 偶尔调侃、轻微吐槽你的喜好</div>
+                    <div class="option"><input type="radio" name="d19" value="5"> D. 频繁打压、否定、试图改造你</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="19">
+                <div class="question">
+                    <div class="q-index">第20题 / 25题</div>
+                    <div class="q-type">【情绪共情】</div>
+                    <p class="q-title">20. 你身心疲惫、压力爆棚的时候，他最像？</p>
+                    <div class="option"><input type="radio" name="d20" value="20"> A. 情绪避风港，迁就你、减负、温柔包容</div>
+                    <div class="option"><input type="radio" name="d20" value="15"> B. 安静陪伴，不添乱、不施压</div>
+                    <div class="option"><input type="radio" name="d20" value="10"> C. 不知所措，只能沉默旁观</div>
+                    <div class="option"><input type="radio" name="d20" value="5"> D. 继续索取情绪价值，不懂体谅疲惫</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="20">
+                <div class="question">
+                    <div class="q-index">第21题 / 25题</div>
+                    <div class="q-type">【思维创造力】</div>
+                    <p class="q-title">21. 长期相处下来，你们的日常氛围更像？</p>
+                    <div class="option"><input type="radio" name="d21" value="20"> A. 时常有小惊喜、小新意，感情持续保鲜</div>
+                    <div class="option"><input type="radio" name="d21" value="15"> B. 平淡温暖，偶尔有温柔仪式感</div>
+                    <div class="option"><input type="radio" name="d21" value="10"> C. 一成不变，日子枯燥乏味</div>
+                    <div class="option"><input type="radio" name="d21" value="5"> D. 极度沉闷，排斥一切浪漫与新意</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="21">
+                <div class="question">
+                    <div class="q-index">第22题 / 25题</div>
+                    <div class="q-type">【思维创造力】</div>
+                    <p class="q-title">22. 规划约会、休闲、独处时光，他的能力？</p>
+                    <div class="option"><input type="radio" name="d22" value="20"> A. 懂得制造氛围，花样丰富，很会经营相处</div>
+                    <div class="option"><input type="radio" name="d22" value="15"> B. 偶尔创新，不会长期单调敷衍</div>
+                    <div class="option"><input type="radio" name="d22" value="10"> C. 模式固化，永远固定流程</div>
+                    <div class="option"><input type="radio" name="d22" value="5"> D. 完全懒得规划，全靠你安排</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="22">
+                <div class="question">
+                    <div class="q-index">第23题 / 25题</div>
+                    <div class="q-type">【思维创造力】</div>
+                    <p class="q-title">23. 气氛尴尬、相处枯燥、局面僵持时，他的调节能力？</p>
+                    <div class="option"><input type="radio" name="d23" value="20"> A. 灵动有趣，擅长破冰、软化氛围</div>
+                    <div class="option"><input type="radio" name="d23" value="15"> B. 氛围舒适，不会让场面僵硬难堪</div>
+                    <div class="option"><input type="radio" name="d23" value="10"> C. 木讷被动，任由气氛冷掉</div>
+                    <div class="option"><input type="radio" name="d23" value="5"> D. 加剧尴尬，气氛压抑窒息</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="23">
+                <div class="question">
+                    <div class="q-index">第24题 / 25题</div>
+                    <div class="q-type">【思维创造力】</div>
+                    <p class="q-title">24. 面对新爱好、新体验、新相处方式，他的态度？</p>
+                    <div class="option"><input type="radio" name="d24" value="20"> A. 开放包容，愿意和你一起尝试新鲜事物</div>
+                    <div class="option"><input type="radio" name="d24" value="15"> B. 可以接受，不抗拒改变</div>
+                    <div class="option"><input type="radio" name="d24" value="10"> C. 偏保守，偏爱一成不变</div>
+                    <div class="option"><input type="radio" name="d24" value="5"> D. 固执守旧，抵触所有新鲜感</div>
+                </div>
+            </div>
+
+            <div class="question-wrap" data-index="24">
+                <div class="question">
+                    <div class="q-index">第25题 / 25题</div>
+                    <div class="q-type">【思维创造力】</div>
+                    <p class="q-title">25. 吵架和解、哄你安抚的方式，是否有温度和新意？</p>
+                    <div class="option"><input type="radio" name="d25" value="20"> A. 温柔细腻、方式走心，懂得精准安抚情绪</div>
+                    <div class="option"><input type="radio" name="d25" value="15"> B. 真诚朴素，虽不花哨但很暖心</div>
+                    <div class="option"><input type="radio" name="d25" value="10"> C. 模板式道歉，毫无诚意新意</div>
+                    <div class="option"><input type="radio" name="d25" value="5"> D. 拒绝安抚，只会冷战消耗</div>
+                </div>
+            </div>
+
+            <div class="btn-box" id="submitBtnWrap" style="display:none;">
+                <button type="button" class="submit-btn" onclick="getResult()">生成人格匹配报告</button>
+            </div>
+        </form>
+
+        <div class="result-box" id="resultBox">
+            <h2 class="result-title">你的男友更像谁｜人格匹配报告</h2>
+            <div class="radar-wrap">
+                <canvas id="radarChart"></canvas>
+            </div>
+            <div class="score-list">
+                <div class="score-item"><div class="score-name">勇气内核</div><div class="score-val" id="sc1">0分</div></div>
+                <div class="score-item"><div class="score-name">处事谋略</div><div class="score-val" id="sc2">0分</div></div>
+                <div class="score-item"><div class="score-name">责任担当</div><div class="score-val" id="sc3">0分</div></div>
+                <div class="score-item"><div class="score-name">情绪共情</div><div class="score-val" id="sc4">0分</div></div>
+                <div class="score-item"><div class="score-name">创造灵气</div><div class="score-val" id="sc5">0分</div></div>
+            </div>
+            <p class="result-desc" id="resultDesc"></p>
+
+            <div class="hero-card">
+                <h3 style="color:#9d65b8;text-align:center;margin-bottom:10px;font-size:18px;">📜 历史人格原型匹配</h3>
+                <div style="display:flex;gap:12px;align-items:center;justify-content:center;margin-bottom:10px;">
+                    <span style="font-size:24px;font-weight:bold;color:#333;" id="heroName">--</span>
+                    <span style="background:#f3e8f9;color:#9d65b8;padding:4px 12px;border-radius:20px;font-size:14px;font-weight:bold;">相似度 <span id="simVal">0%</span></span>
+                </div>
+                <div class="hero-quote" id="heroQuote">“”</div>
+                <div class="tag-group" id="heroTags"></div>
+
+                <div class="hero-block">
+                    <h4>📖 完整人物画像</h4>
+                    <p id="heroPortrait"></p>
+                </div>
+                <div class="hero-block">
+                    <h4>✨ 与你的男友核心共同点</h4>
+                    <p id="heroSame"></p>
+                </div>
+                <div class="hero-block">
+                    <h4>🔎 关键性格差异点</h4>
+                    <p id="heroDiff"></p>
+                </div>
+                <div class="hero-block">
+                    <h4>🌟 人格成功核心要素</h4>
+                    <p id="heroSuccess"></p>
+                </div>
+                <div class="hero-block">
+                    <h4>⚠️ 原生性格短板隐患</h4>
+                    <p id="heroFlaw"></p>
+                </div>
+            </div>
+
+            <!-- 一键生成海报 -->
+            <div class="poster-block">
+                <div class="poster-title">📸 一键生成测评海报</div>
+                <button class="poster-btn" onclick="generatePoster()">点击生成海报并保存</button>
+                <div class="poster-tip" id="posterTip">点击后自动下载图片，可直接发朋友圈/小红书</div>
+            </div>
+        </div>
+
+        <p class="tip">历史人格匹配测评 · 仅供娱乐参考💕</p>
+    </div>
+
+    <!-- 海报截图容器，隐藏，用于生成图片 -->
+    <div id="posterCapture">
+        <div style="padding:20px;">
+            <h2 style="text-align:center;color:#9d65b8;font-size:24px;margin-bottom:16px;">你的男友更像谁</h2>
+            <div style="text-align:center;margin-bottom:12px;font-size:18px;font-weight:bold;" id="posterHeroName"></div>
+            <div style="text-align:center;color:#9d65b8;margin-bottom:20px;">相似度：<span id="posterSim"></span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+                <div style="background:#f9f4fc;padding:10px;border-radius:10px;text-align:center;">
+                    <div style="font-size:13px;color:#666;">勇气内核</div>
+                    <div style="font-size:16px;font-weight:bold;color:#9d65b8;" id="posterS1"></div>
+                </div>
+                <div style="background:#f9f4fc;padding:10px;border-radius:10px;text-align:center;">
+                    <div style="font-size:13px;color:#666;">处事谋略</div>
+                    <div style="font-size:16px;font-weight:bold;color:#9d65b8;" id="posterS2"></div>
+                </div>
+                <div style="background:#f9f4fc;padding:10px;border-radius:10px;text-align:center;">
+                    <div style="font-size:13px;color:#666;">责任担当</div>
+                    <div style="font-size:16px;font-weight:bold;color:#9d65b8;" id="posterS3"></div>
+                </div>
+                <div style="background:#f9f4fc;padding:10px;border-radius:10px;text-align:center;">
+                    <div style="font-size:13px;color:#666;">情绪共情</div>
+                    <div style="font-size:16px;font-weight:bold;color:#9d65b8;" id="posterS4"></div>
+                </div>
+                <div style="background:#f9f4fc;padding:10px;border-radius:10px;text-align:center;grid-column:1/-1;">
+                    <div style="font-size:13px;color:#666;">创造灵气</div>
+                    <div style="font-size:16px;font-weight:bold;color:#9d65b8;" id="posterS5"></div>
+                </div>
+            </div>
+            <div style="font-style:italic;text-align:center;background:#f7f0f8;padding:12px;border-radius:12px;margin-bottom:16px;color:#a87bbf;" id="posterQuote"></div>
+            <div style="text-align:center;font-size:12px;color:#999;margin-top:24px;">趣味人格测评｜仅供娱乐</div>
+        </div>
+    </div>
+
+    <script>
+        let chartIns = null;
+        let currentQuestionIndex = 0;
+        const totalQuestion = 25;
+        let answerData = {};
+
+        // 人物库
+        let heroList = [
+            {
+                name:"诸葛亮",
+                score:[88,95,96,72,80],
+                quote:"鞠躬尽瘁，死而后已。",
+                tags:["缜密理智","极致负责","长线布局","偏内敛"],
+                portrait:"千古第一贤相，是极致自律、极度靠谱的理想主义者。一生行事谨慎稳重，拥有顶尖的战略眼光与统筹能力，做事有章法、有底线、有格局。抗压能力极强，危难时刻永远挺身而出，对承诺、责任、信念极致坚守。性格沉稳克制，极少情绪化，凡事追求尽善尽美，但为人偏严肃内敛，不擅长松弛的情绪表达，习惯独自扛下所有压力，不懂示弱与放权。",
+                same:"你的男友与诸葛亮拥有高度一致的责任感与处事逻辑，做事稳重靠谱、有规划、有底线，遇事不慌乱，懂得长远考虑，对待承诺和分内之事极其认真，不会敷衍糊弄，是相处中极度让人安心的类型。",
+                diff:"相比诸葛亮近乎偏执的完美主义、事事亲力亲为、不懂松弛的性格，你的男友更懂得适度放松，不会过度内耗，对他人容错率更高，不会严苛苛求身边人的一举一动，相处更温和松弛。",
+                success:"拥有顶级的长线战略思维、极致的执行力与责任心，坚守初心不改，遇事沉着冷静，擅长统筹全局、预判风险、布局未来，做人做事坚守原则底线，靠谱专一、值得托付终身。",
+                flaw:"完美主义严重，过度自我施压，习惯独扛压力不懂示弱放权，情绪共情偏弱，对身边人要求偏严苛，不懂松弛生活，容易过度消耗自己，不懂享受当下。"
+            },
+            {
+                name:"刘备",
+                score:[82,75,90,92,70],
+                quote:"勿以善小而不为，勿以恶小而为之。",
+                tags:["温柔仁厚","极度共情","坚韧隐忍","重情重义"],
+                portrait:"以情义立身、以温柔聚人的仁德领袖，是极具人格魅力的隐忍型强者。一生屡败屡战，抗压韧性极强，待人宽厚温柔、共情细腻，极度重视情义与真心，懂得换位思考、体恤他人难处。不擅长凌厉的权谋算计，处事偏温和，关键时刻容易被情感裹挟，决断力和战略智谋稍弱，但真诚善良、重情重义、待人赤诚。",
+                same:"你的男友拥有和刘备一样的温柔底色与共情能力，为人真诚善良、重情重义，懂得包容体谅，待人赤诚温柔，遇事懂得坚持不轻易放弃，对待感情专一认真，珍惜彼此的缘分。",
+                diff:"相比于刘备容易感情用事、关键时刻优柔寡断、谋略布局偏弱的短板，你的男友拥有更清晰的处事逻辑与决断力，遇事更理性，不会被情绪过度裹挟，处理问题更通透。",
+                success:"拥有超强的情绪韧性与抗挫能力，共情力出众、待人真诚温暖，懂得收拢人心、珍惜真心，重承诺、有担当、百折不挠，绝境之中依然保有善意与初心。",
+                flaw:"容易被情义与情绪左右判断，关键时刻不够果决，战略格局与长远谋略偏弱，容易心软妥协，偶尔会因为顾念情面耽误抉择。"
+            },
+            {
+                name:"曹操",
+                score:[94,90,78,55,85],
+                quote:"宁我负人，毋人负我。",
+                tags:["果决霸气","谋略顶尖","理性利己","创造力强"],
+                portrait:"乱世枭雄，杀伐果决、眼光毒辣的极致现实主义者。勇气胆识冠绝众人，审时度势能力极强，擅长抓住机遇、突破局限，思维灵动、不拘小节、不被世俗束缚。行事目标导向极强，理智清醒、杀伐果断，拥有极强的野心与能力，但共情能力薄弱，猜忌心重，极度缺乏安全感，习惯防备所有人，为达成目标可以牺牲情绪与温情。",
+                same:"你的男友和曹操一样胆识出众、头脑清醒、思维灵活，遇事果断不拖沓，擅长审时度势、解决问题，有主见、有魄力，不懦弱、不盲从，处事通透务实。",
+                diff:"你的男友没有曹操多疑凉薄、功利至上的性格短板，待人更真诚温柔，懂得珍惜感情、体谅他人，不会为了利益牺牲情义，内心更温暖纯粹。",
+                success:"胆识超群、眼光长远、应变能力顶级，敢于突破现状、敢闯敢拼，目标感极强、决策果断，擅长把握机遇、顺势而为，能力出众、格局宏大。",
+                flaw:"共情能力匮乏，性格多疑防备心重，内心极度缺乏安全感，为人偏功利现实，习惯理性压倒温情，容易忽视身边人的情绪与感受。"
+            },
+            {
+                name:"周瑜",
+                score:[86,84,80,68,90],
+                quote:"丈夫处世，遇知己之主。",
+                tags:["风华绝代","才情出众","骄傲通透","灵气十足"],
+                portrait:"雅量高致、文武双全的天才型人物，年少成名、风华绝代，兼具谋略胆识与审美灵气。处事聪慧通透、格局开阔，才情出众、审美高级，擅长营造氛围、把握局势，为人坦荡大气。但自尊心极强、好胜心过重，极度在意输赢与名声，难以接受失败与落差，容易被胜负欲内耗自己，共情耐心稍弱。",
+                same:"你的男友和周瑜一样聪明通透、才华灵气十足，处事利落、格局开阔，有胆识有谋略，审美在线、懂得制造生活新意，为人坦荡大方、不猥琐狭隘。",
+                diff:"相比于周瑜骄傲好胜、心胸偏狭、难容落差的短板，你的男友心态更平和松弛，输赢心更淡，懂得接纳不完美，待人更包容温柔，不会过度攀比内耗。",
+                success:"天资出众、文武兼备，谋略与灵气双高，格局开阔、处事利落，擅长统筹经营、把握时机，自带氛围感与个人魅力，年少有为、能力出众。",
+                flaw:"自尊心过强、好胜心太重，极度在意他人评价与输赢落差，容易心生执念、自我内耗，包容心不足，难以坦然接纳失败与他人优秀。"
+            },
+            {
+                name:"赵云",
+                score:[92,85,95,82,75],
+                quote:"大丈夫只患功名不立，何患无妻？",
+                tags:["完美靠谱","沉稳专一","智勇双全","温柔忠诚"],
+                portrait:"三国最完美的温润名将，智勇双全、沉稳克制、忠诚靠谱的顶级伴侣人格。一生行事稳重端正、恪守本心，有勇有谋、进退有度，抗压能力极强，遇事冷静从容，从不冲动莽撞。待人温柔宽厚、分寸极佳，极度忠诚专一、有担当、有底线，不争不抢、踏实靠谱，唯一短板是过于内敛克制，不擅长主动表达浪漫与情绪。",
+                same:"你的男友拥有赵云同款顶级靠谱人格，忠诚专一、稳重踏实、遇事冷静，有勇气有谋略、有担当有底线，待人温柔有礼，处事分寸极佳，是极度让人安心、值得托付的类型。",
+                diff:"相比赵云过于内敛克制、不善表达、不懂主动制造浪漫的短板，你的男友更懂得表达情绪、经营生活，相处更有温度与新鲜感。",
+                success:"智勇双全、沉稳自律，遇事临危不乱，忠诚专一，有底线有担当，待人宽厚，进退有度，是难得的可以托付终身的伴侣。",
+                flaw:"过于内敛克制，习惯压抑情绪，不擅长主动表达爱意与浪漫，遇到委屈习惯独自承受，很少主动示弱倾诉。"
+            }
+        ];
+
+        // 初始化页面，显示第1题
+        function initPage(){
+            showQuestion(currentQuestionIndex);
+            bindOptionClick();
+        }
+
+        // 切换题目
+        function showQuestion(idx){
+            document.querySelectorAll('.question-wrap').forEach(item=>{
+                item.classList.remove('active');
+            })
+            const qWrap = document.querySelector(`.question-wrap[data-index="${idx}"]`);
+            if(qWrap) qWrap.classList.add('active');
+
+            // 更新进度条
+            const percent = (idx / totalQuestion) * 100;
+            document.getElementById('progressFill').style.width = percent + "%";
+
+            // 最后一题显示提交按钮
+            if(idx === totalQuestion -1){
+                document.getElementById('submitBtnWrap').style.display = "block";
+            }else{
+                document.getElementById('submitBtnWrap').style.display = "none";
+            }
+        }
+
+        // 绑定单选点击事件，选完自动下一题
+        function bindOptionClick(){
+            const radios = document.querySelectorAll('input[type="radio"]');
+            radios.forEach(radio=>{
+                radio.onchange = function(){
+                    const name = this.name;
+                    answerData[name] = Number(this.value);
+                    // 选中后自动切下一题
+                    if(currentQuestionIndex < totalQuestion -1){
+                        currentQuestionIndex++;
+                        showQuestion(currentQuestionIndex);
+                    }
+                }
+            })
+        }
+
+        // 计算5维度分数
+        function calcScore(){
+            // 维度分组：勇气内核 d1-d5；处事谋略d6-d10；责任担当d11-d15；情绪共情d16-d20；创造灵气d21-d25
+            const d1 = (answerData.d1||0)+(answerData.d2||0)+(answerData.d3||0)+(answerData.d4||0)+(answerData.d5||0);
+            const d2 = (answerData.d6||0)+(answerData.d7||0)+(answerData.d8||0)+(answerData.d9||0)+(answerData.d10||0);
+            const d3 = (answerData.d11||0)+(answerData.d12||0)+(answerData.d13||0)+(answerData.d14||0)+(answerData.d15||0);
+            const d4 = (answerData.d16||0)+(answerData.d17||0)+(answerData.d18||0)+(answerData.d19||0)+(answerData.d20||0);
+            const d5 = (answerData.d21||0)+(answerData.d22||0)+(answerData.d23||0)+(answerData.d24||0)+(answerData.d25||0);
+            return [d1, d2, d3, d4, d5];
+        }
+
+        // 欧氏距离匹配人物
+        function matchHero(scoreArr){
+            let best = null;
+            let minDist = Infinity;
+            heroList.forEach(h=>{
+                let sum = 0;
+                for(let i=0;i<5;i++){
+                    sum += Math.pow(scoreArr[i]-h.score[i],2);
+                }
+                const dist = Math.sqrt(sum);
+                if(dist < minDist){
+                    minDist = dist;
+                    best = h;
+                }
+            })
+            // 计算相似度
+            const maxDist = Math.sqrt(5*Math.pow(100,2));
+            const sim = Math.round( (1 - minDist/maxDist)*100 );
+            return {hero:best, sim:sim};
+        }
+
+        // 生成结果
+        function getResult(){
+            const score = calcScore();
+            const {hero, sim} = matchHero(score);
+
+            // 填入分数
+            document.getElementById('sc1').innerText = score[0]+"分";
+            document.getElementById('sc2').innerText = score[1]+"分";
+            document.getElementById('sc3').innerText = score[2]+"分";
+            document.getElementById('sc4').innerText = score[3]+"分";
+            document.getElementById('sc5').innerText = score[4]+"分";
+
+            document.getElementById('heroName').innerText = hero.name;
+            document.getElementById('simVal').innerText = sim+"%";
+            document.getElementById('heroQuote').innerText = "“"+hero.quote+"”";
+            document.getElementById('heroPortrait').innerText = hero.portrait;
+            document.getElementById('heroSame').innerText = hero.same;
+            document.getElementById('heroDiff').innerText = hero.diff;
+            document.getElementById('heroSuccess').innerText = hero.success;
+            document.getElementById('heroFlaw').innerText = hero.flaw;
+
+            // 渲染标签
+            const tagWrap = document.getElementById('heroTags');
+            tagWrap.innerHTML = "";
+            hero.tags.forEach(t=>{
+                tagWrap.innerHTML += `<span class="hero-tag">${t}</span>`;
+            })
+
+            // 描述文字
+            document.getElementById('resultDesc').innerText = `你的男友五维人格测评完成，勇气内核${score[0]}、处事谋略${score[1]}、责任担当${score[2]}、情绪共情${score[3]}、创造灵气${score[4]}。综合人格原型匹配为${hero.name}。`;
+
+            // 雷达图
+            if(chartIns) chartIns.destroy();
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            chartIns = new Chart(ctx, {
+                type: 'radar',
+                data:{
+                    labels:["勇气内核","处事谋略","责任担当","情绪共情","创造灵气"],
+                    datasets:[{
+                        label:"男友人格",
+                        data:score,
+                        backgroundColor:"rgba(157,101,184,0.2)",
+                        borderColor:"#9d65b8",
+                        pointBackgroundColor:"#9d65b8"
+                    }]
+                },
+                options:{scales:{r:{min:0,max:100}}}
+            })
+
+            // 海报容器预填充
+            document.getElementById('posterHeroName').innerText = hero.name;
+            document.getElementById('posterSim').innerText = sim+"%";
+            document.getElementById('posterS1').innerText = score[0]+"分";
+            document.getElementById('posterS2').innerText = score[1]+"分";
+            document.getElementById('posterS3').innerText = score[2]+"分";
+            document.getElementById('posterS4').innerText = score[3]+"分";
+            document.getElementById('posterS5').innerText = score[4]+"分";
+            document.getElementById('posterQuote').innerText = "“"+hero.quote+"”";
+
+            // 显示结果面板
+            document.getElementById('resultBox').style.display = "block";
+            // 滚动到结果
+            document.getElementById('resultBox').scrollIntoView({behavior:"smooth"});
+        }
+
+        // 海报生成
+        async function generatePoster(){
+            const tip = document.getElementById('posterTip');
+            tip.innerText = "正在生成海报图片...";
+            try{
+                const canvas = await html2canvas(document.getElementById('posterCapture'),{scale:2});
+                const link = document.createElement('a');
+                link.download = "你的男友更像谁_测评海报.png";
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+                tip.innerText = "海报已下载！可以直接分享";
+            }catch(e){
+                tip.innerText = "生成失败，请重试";
+                console.error(e);
+            }
+        }
+
+        // 页面加载完成初始化
+        window.onload = initPage;
+    </script>
+</body>
+</html>
